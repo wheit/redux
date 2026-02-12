@@ -28,8 +28,20 @@ export default function accountReducer(state = initalState, action) {
       return state;
   }
 }
-export function deposit(amount) {
-  return { type: "account/deposit", payload: amount };
+export function deposit(amount, currency) {
+  if (currency === "USD") return { type: "account/deposit", payload: amount };
+  return function (dispatch, getState) {
+    //API call
+    fetch(`https://api.frankfurter.dev/v1/latest?base=${currency}&symbols=USD`)
+      .then((resp) => resp.json())
+      .then((data) => {
+        const convertedAmount = amount * data.rates["USD"];
+        console.log(convertedAmount);
+      });
+
+    //return action
+    return { type: "account/deposit", payload: convertedAmount };
+  };
 }
 export function withdraw(amount) {
   return { type: "account/withdraw", payload: amount };
